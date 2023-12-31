@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -54,6 +55,31 @@ func ExtractUserIDFromClaims(c *fiber.Ctx) (uint, error) {
 	claims, ok := user.Claims.(jwt.MapClaims)
 	if !ok {
 		return 0, fiber.NewError(fiber.StatusBadRequest, "Failed to validate claims")
+	}
+
+	userID, ok := claims["id"].(float64)
+	if !ok {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Invalid user id type")
+	}
+
+	return uint(userID), nil
+}
+
+func ExtractUserIDFromJWTPayload(tokenString string) (uint, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(jwtKey), nil
+	})
+	if err != nil {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Failed to parse jwt payload")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Invalid jwt claims")
 	}
 
 	userID, ok := claims["id"].(float64)

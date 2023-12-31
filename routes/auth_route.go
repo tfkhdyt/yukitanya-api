@@ -14,4 +14,5 @@ func RegisterAuthRoute(app *fiber.App) {
 	auth.Post("/register", authController.Register)
 	auth.Post("/login", authController.Login)
 	auth.Get("/inspect", middlewares.JwtMiddleware, authController.Inspect)
+	auth.Post("/refresh", authController.RefreshToken)
 }

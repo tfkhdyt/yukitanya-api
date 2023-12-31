@@ -26,3 +26,9 @@ type InspectResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required,jwt"`
+}
+
+type RefreshTokenResponse = LoginResponse

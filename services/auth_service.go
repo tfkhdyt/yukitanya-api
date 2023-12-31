@@ -88,3 +88,20 @@ func (a *AuthService) Inspect(userID uint) (*dto.InspectResponse, error) {
 		Email:    user.Email,
 	}, nil
 }
+
+func (a *AuthService) RefreshToken(userID uint) (*dto.RefreshTokenResponse, error) {
+	accessToken, err := common.GenerateJWTToken(userID, common.Access)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := common.GenerateJWTToken(userID, common.Refresh)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}

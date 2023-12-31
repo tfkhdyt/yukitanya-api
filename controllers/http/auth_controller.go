@@ -56,3 +56,22 @@ func (a *AuthController) Inspect(c *fiber.Ctx) error {
 
 	return c.JSON(response)
 }
+
+func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
+	payload := new(dto.RefreshTokenRequest)
+	if err := common.ValidateBody(c, payload); err != nil {
+		return err
+	}
+
+	userID, err := common.ExtractUserIDFromJWTPayload(payload.RefreshToken)
+	if err != nil {
+		return err
+	}
+
+	response, err := a.authService.RefreshToken(userID)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(response)
+}
