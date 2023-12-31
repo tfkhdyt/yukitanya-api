@@ -41,9 +41,8 @@ func ValidateBody(c *fiber.Ctx, payload any) error {
 	}
 
 	if err := validateStruct(payload); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error": err,
-		})
+		return NewValidationError(err)
 	}
+
 	return nil
 }

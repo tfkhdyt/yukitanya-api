@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"reflect"
@@ -8,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/goioc/di"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/tfkhdyt/yukitanya-api/common"
 	"github.com/tfkhdyt/yukitanya-api/controllers/http"
 	"github.com/tfkhdyt/yukitanya-api/database"
 	"github.com/tfkhdyt/yukitanya-api/repositories/postgres"
@@ -24,7 +26,27 @@ func init() {
 }
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			var ve *common.ValidationError
+			if errors.As(err, &ve) {
+				return ctx.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
+					"error": ve.Err,
+				})
+			}
+
+			return ctx.Status(code).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		},
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello world")
