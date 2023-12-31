@@ -5,11 +5,12 @@ import (
 	"github.com/tfkhdyt/yukitanya-api/common"
 	"github.com/tfkhdyt/yukitanya-api/dto"
 	"github.com/tfkhdyt/yukitanya-api/models"
+	"github.com/tfkhdyt/yukitanya-api/repositories"
 	"github.com/tfkhdyt/yukitanya-api/repositories/postgres"
 )
 
 type UserService struct {
-	userRepo *postgres.UserRepoPg `di.inject:"userRepo"`
+	userRepo repositories.UserRepo `di.inject:"userRepo"`
 }
 
 func NewUserService(userRepo *postgres.UserRepoPg) *UserService {
@@ -46,4 +47,30 @@ func (u *UserService) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 	}
 
 	return response, nil
+}
+
+func (u *UserService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, error) {
+	user, err := u.userRepo.ShowByEmail(payload.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := common.VerifyPassword(payload.Password, user.Password); err != nil {
+		return nil, err
+	}
+
+	accessToken, err := common.CreateJWTToken(user.ID, common.Access)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := common.CreateJWTToken(user.ID, common.Refresh)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }

@@ -15,19 +15,27 @@ func NewUserController(userService *services.UserService) *AuthController {
 	return &AuthController{userService}
 }
 
-func (u *AuthController) Register(c *fiber.Ctx) error {
+func (a *AuthController) Register(c *fiber.Ctx) error {
 	payload := new(dto.RegisterRequest)
-	if err := c.BodyParser(payload); err != nil {
-		return fiber.NewError(fiber.StatusUnprocessableEntity, "Invalid request body")
+	if err := common.ValidateBody(c, payload); err != nil {
+		return err
 	}
 
-	if err := common.Validate(payload); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": err,
-		})
+	response, err := a.userService.Register(payload)
+	if err != nil {
+		return err
 	}
 
-	response, err := u.userService.Register(payload)
+	return c.JSON(response)
+}
+
+func (a *AuthController) Login(c *fiber.Ctx) error {
+	payload := new(dto.LoginRequest)
+	if err := common.ValidateBody(c, payload); err != nil {
+		return err
+	}
+
+	response, err := a.userService.Login(payload)
 	if err != nil {
 		return err
 	}

@@ -11,6 +11,7 @@ import (
 	"github.com/tfkhdyt/yukitanya-api/controllers/http"
 	"github.com/tfkhdyt/yukitanya-api/database"
 	"github.com/tfkhdyt/yukitanya-api/repositories/postgres"
+	"github.com/tfkhdyt/yukitanya-api/routes"
 	"github.com/tfkhdyt/yukitanya-api/services"
 )
 
@@ -25,14 +26,11 @@ func init() {
 func main() {
 	app := fiber.New()
 
-	userController := di.GetInstance("userController").(*http.AuthController)
-
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello world")
 	})
 
-	auth := app.Group("/auth")
-	auth.Post("/register", userController.Register)
+	routes.RegisterAuthRoute(app)
 
 	if err := app.Listen(":" + os.Getenv("APP_PORT")); err != nil {
 		log.Fatalln("Error:", err)
