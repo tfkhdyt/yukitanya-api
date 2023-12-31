@@ -9,20 +9,20 @@ import (
 	"github.com/tfkhdyt/yukitanya-api/repositories/postgres"
 )
 
-type UserService struct {
+type AuthService struct {
 	userRepo repositories.UserRepo `di.inject:"userRepo"`
 }
 
-func NewUserService(userRepo *postgres.UserRepoPg) *UserService {
-	return &UserService{userRepo}
+func NewAuthService(userRepo *postgres.UserRepoPg) *AuthService {
+	return &AuthService{userRepo}
 }
 
-func (u *UserService) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
-	if _, err := u.userRepo.ShowByEmail(payload.Email); err == nil {
+func (a *AuthService) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
+	if _, err := a.userRepo.ShowByEmail(payload.Email); err == nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Email has been used")
 	}
 
-	if _, err := u.userRepo.ShowByUsername(payload.Username); err == nil {
+	if _, err := a.userRepo.ShowByUsername(payload.Username); err == nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Username has been used")
 	}
 
@@ -38,7 +38,7 @@ func (u *UserService) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 		return nil, err
 	}
 
-	if err := u.userRepo.Store(user); err != nil {
+	if err := a.userRepo.Store(user); err != nil {
 		return nil, err
 	}
 
@@ -49,8 +49,8 @@ func (u *UserService) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 	return response, nil
 }
 
-func (u *UserService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, error) {
-	user, err := u.userRepo.ShowByEmail(payload.Email)
+func (a *AuthService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, error) {
+	user, err := a.userRepo.ShowByEmail(payload.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +59,12 @@ func (u *UserService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, erro
 		return nil, err
 	}
 
-	accessToken, err := common.CreateJWTToken(user.ID, common.Access)
+	accessToken, err := common.GenerateJWTToken(user.ID, common.Access)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := common.CreateJWTToken(user.ID, common.Refresh)
+	refreshToken, err := common.GenerateJWTToken(user.ID, common.Refresh)
 	if err != nil {
 		return nil, err
 	}
@@ -72,5 +72,19 @@ func (u *UserService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, erro
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (a *AuthService) Inspect(userID uint) (*dto.InspectResponse, error) {
+	user, err := a.userRepo.Show(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.InspectResponse{
+		ID:       user.Model.ID,
+		Name:     user.Name,
+		Username: user.Username,
+		Email:    user.Email,
 	}, nil
 }

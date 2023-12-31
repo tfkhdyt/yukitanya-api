@@ -18,7 +18,7 @@ const (
 	Refresh JwtType = 1
 )
 
-func CreateJWTToken(userID uint, jwtType JwtType) (string, error) {
+func GenerateJWTToken(userID uint, jwtType JwtType) (string, error) {
 	var exp int64
 	switch jwtType {
 	case Access:
@@ -43,4 +43,23 @@ func CreateJWTToken(userID uint, jwtType JwtType) (string, error) {
 	}
 
 	return t, nil
+}
+
+func ExtractUserIDFromClaims(c *fiber.Ctx) (uint, error) {
+	user, ok := c.Locals("user").(*jwt.Token)
+	if !ok {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Failed to validate token")
+	}
+
+	claims, ok := user.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Failed to validate claims")
+	}
+
+	userID, ok := claims["id"].(float64)
+	if !ok {
+		return 0, fiber.NewError(fiber.StatusBadRequest, "Invalid user id type")
+	}
+
+	return uint(userID), nil
 }

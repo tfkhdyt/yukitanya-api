@@ -17,8 +17,8 @@ import (
 
 func init() {
 	_, _ = di.RegisterBean("userRepo", reflect.TypeOf((*postgres.UserRepoPg)(nil)))
-	_, _ = di.RegisterBean("userService", reflect.TypeOf((*services.UserService)(nil)))
-	_, _ = di.RegisterBean("userController", reflect.TypeOf((*http.AuthController)(nil)))
+	_, _ = di.RegisterBean("authService", reflect.TypeOf((*services.AuthService)(nil)))
+	_, _ = di.RegisterBean("authController", reflect.TypeOf((*http.AuthController)(nil)))
 	_, _ = di.RegisterBeanInstance("db", database.StartDB())
 	_ = di.InitializeContainer()
 }

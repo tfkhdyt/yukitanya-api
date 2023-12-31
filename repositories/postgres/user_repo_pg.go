@@ -43,3 +43,12 @@ func (u *UserRepoPg) ShowByUsername(username string) (*models.User, error) {
 
 	return user, nil
 }
+
+func (u *UserRepoPg) Show(userID uint) (*models.User, error) {
+	user := new(models.User)
+	if err := u.db.First(user, userID).Error; err != nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "User is not found")
+	}
+
+	return user, nil
+}

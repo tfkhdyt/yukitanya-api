@@ -8,10 +8,10 @@ import (
 )
 
 type AuthController struct {
-	userService *services.UserService `di.inject:"userService"`
+	authService *services.AuthService `di.inject:"authService"`
 }
 
-func NewUserController(userService *services.UserService) *AuthController {
+func NewUserController(userService *services.AuthService) *AuthController {
 	return &AuthController{userService}
 }
 
@@ -21,7 +21,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.userService.Register(payload)
+	response, err := a.authService.Register(payload)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,21 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.userService.Login(payload)
+	response, err := a.authService.Login(payload)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(response)
+}
+
+func (a *AuthController) Inspect(c *fiber.Ctx) error {
+	userID, err := common.ExtractUserIDFromClaims(c)
+	if err != nil {
+		return err
+	}
+
+	response, err := a.authService.Inspect(uint(userID))
 	if err != nil {
 		return err
 	}
