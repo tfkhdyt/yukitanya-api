@@ -21,10 +21,6 @@ const (
 
 type TokenService struct{}
 
-func NewTokenService() *TokenService {
-	return &TokenService{}
-}
-
 func (ts *TokenService) GenerateJWTToken(userID uint, jwtType JwtType) (string, error) {
 	var exp int64
 	switch jwtType {

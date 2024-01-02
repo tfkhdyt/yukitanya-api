@@ -11,10 +11,6 @@ type HashService struct {
 	argon *argon2.Config `di.inject:"argon"`
 }
 
-func NewHashService(argon *argon2.Config) *HashService {
-	return &HashService{argon}
-}
-
 func (h *HashService) HashPassword(password string) (string, error) {
 	hashedPassword, err := h.argon.HashEncoded([]byte(password))
 	if err != nil {

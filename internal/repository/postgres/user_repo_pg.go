@@ -5,16 +5,11 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tfkhdyt/yukitanya-api/internal/model"
-	"github.com/tfkhdyt/yukitanya-api/internal/repository"
 	"gorm.io/gorm"
 )
 
 type UserRepoPg struct {
 	db *gorm.DB `di.inject:"db"`
-}
-
-func NewUserRepoPg(db *gorm.DB) repository.UserRepo {
-	return &UserRepoPg{db}
 }
 
 func (u *UserRepoPg) Store(user *model.User) error {

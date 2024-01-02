@@ -5,7 +5,6 @@ import (
 	"github.com/tfkhdyt/yukitanya-api/internal/dto"
 	"github.com/tfkhdyt/yukitanya-api/internal/model"
 	"github.com/tfkhdyt/yukitanya-api/internal/repository"
-	"github.com/tfkhdyt/yukitanya-api/internal/repository/postgres"
 	"github.com/tfkhdyt/yukitanya-api/internal/service"
 )
 
@@ -13,10 +12,6 @@ type AuthUsecase struct {
 	userRepo     repository.UserRepo   `di.inject:"userRepo"`
 	hashService  *service.HashService  `di.inject:"hashService"`
 	tokenService *service.TokenService `di.inject:"tokenService"`
-}
-
-func NewAuthUsecase(userRepo *postgres.UserRepoPg, hashService *service.HashService, tokenService *service.TokenService) *AuthUsecase {
-	return &AuthUsecase{userRepo, hashService, tokenService}
 }
 
 func (a *AuthUsecase) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
