@@ -1,23 +1,23 @@
-package services
+package usecase
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/tfkhdyt/yukitanya-api/common"
-	"github.com/tfkhdyt/yukitanya-api/dto"
-	"github.com/tfkhdyt/yukitanya-api/models"
-	"github.com/tfkhdyt/yukitanya-api/repositories"
-	"github.com/tfkhdyt/yukitanya-api/repositories/postgres"
+	"github.com/tfkhdyt/yukitanya-api/internal/common"
+	"github.com/tfkhdyt/yukitanya-api/internal/dto"
+	"github.com/tfkhdyt/yukitanya-api/internal/model"
+	"github.com/tfkhdyt/yukitanya-api/internal/repository"
+	"github.com/tfkhdyt/yukitanya-api/internal/repository/postgres"
 )
 
-type AuthService struct {
-	userRepo repositories.UserRepo `di.inject:"userRepo"`
+type AuthUsecase struct {
+	userRepo repository.UserRepo `di.inject:"userRepo"`
 }
 
-func NewAuthService(userRepo *postgres.UserRepoPg) *AuthService {
-	return &AuthService{userRepo}
+func NewAuthService(userRepo *postgres.UserRepoPg) *AuthUsecase {
+	return &AuthUsecase{userRepo}
 }
 
-func (a *AuthService) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
+func (a *AuthUsecase) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
 	if _, err := a.userRepo.ShowByEmail(payload.Email); err == nil {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Email has been used")
 	}
@@ -26,7 +26,7 @@ func (a *AuthService) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 		return nil, fiber.NewError(fiber.StatusBadRequest, "Username has been used")
 	}
 
-	user := &models.User{
+	user := &model.User{
 		Name:     payload.Name,
 		Username: payload.Username,
 		Email:    payload.Email,
@@ -49,7 +49,7 @@ func (a *AuthService) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 	return response, nil
 }
 
-func (a *AuthService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, error) {
+func (a *AuthUsecase) Login(payload *dto.LoginRequest) (*dto.LoginResponse, error) {
 	user, err := a.userRepo.ShowByEmail(payload.Email)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (a *AuthService) Login(payload *dto.LoginRequest) (*dto.LoginResponse, erro
 	}, nil
 }
 
-func (a *AuthService) Inspect(userID uint) (*dto.InspectResponse, error) {
+func (a *AuthUsecase) Inspect(userID uint) (*dto.InspectResponse, error) {
 	user, err := a.userRepo.Show(userID)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func (a *AuthService) Inspect(userID uint) (*dto.InspectResponse, error) {
 	}, nil
 }
 
-func (a *AuthService) RefreshToken(userID uint) (*dto.RefreshTokenResponse, error) {
+func (a *AuthUsecase) RefreshToken(userID uint) (*dto.RefreshTokenResponse, error) {
 	accessToken, err := common.GenerateJWTToken(userID, common.Access)
 	if err != nil {
 		return nil, err

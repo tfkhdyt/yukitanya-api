@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/tfkhdyt/yukitanya-api/common"
-	"github.com/tfkhdyt/yukitanya-api/dto"
-	"github.com/tfkhdyt/yukitanya-api/services"
+	"github.com/tfkhdyt/yukitanya-api/internal/common"
+	"github.com/tfkhdyt/yukitanya-api/internal/dto"
+	"github.com/tfkhdyt/yukitanya-api/internal/usecase"
 )
 
 type AuthController struct {
-	authService *services.AuthService `di.inject:"authService"`
+	authUsecase *usecase.AuthUsecase `di.inject:"authUsecase"`
 }
 
-func NewUserController(userService *services.AuthService) *AuthController {
+func NewUserController(userService *usecase.AuthUsecase) *AuthController {
 	return &AuthController{userService}
 }
 
@@ -24,7 +24,7 @@ func (a *AuthController) Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.authService.Register(payload)
+	response, err := a.authUsecase.Register(payload)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (a *AuthController) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.authService.Login(payload)
+	response, err := a.authUsecase.Login(payload)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (a *AuthController) Inspect(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.authService.Inspect(uint(userID))
+	response, err := a.authUsecase.Inspect(uint(userID))
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (a *AuthController) RefreshToken(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := a.authService.RefreshToken(userID)
+	response, err := a.authUsecase.RefreshToken(userID)
 	if err != nil {
 		return err
 	}

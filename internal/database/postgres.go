@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/tfkhdyt/yukitanya-api/models"
+	"github.com/tfkhdyt/yukitanya-api/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,15 +25,15 @@ func StartDB() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(
-		&models.User{},
-		&models.Question{},
-		&models.Answer{},
-		&models.Subject{},
-		&models.OldSlug{},
-		&models.Membership{},
-		&models.Notification{},
-		&models.QuestionImage{},
-		&models.Rating{},
+		&model.User{},
+		&model.Question{},
+		&model.Answer{},
+		&model.Subject{},
+		&model.OldSlug{},
+		&model.Membership{},
+		&model.Notification{},
+		&model.QuestionImage{},
+		&model.Rating{},
 	); err != nil {
 		log.Fatalln("Error:", err)
 	}

@@ -1,0 +1,6 @@
+version: '3'
+
+tasks:
+  dev:
+    cmds:
+      - watchexec -c -r -e go -- go run ./cmd/yukitanya-api

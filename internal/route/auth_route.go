@@ -1,10 +1,10 @@
-package routes
+package route
 
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/goioc/di"
-	"github.com/tfkhdyt/yukitanya-api/controllers/http"
-	"github.com/tfkhdyt/yukitanya-api/middlewares"
+	"github.com/tfkhdyt/yukitanya-api/internal/controller/http"
+	"github.com/tfkhdyt/yukitanya-api/internal/middleware"
 )
 
 func RegisterAuthRoute(app *fiber.App) {
@@ -13,6 +13,6 @@ func RegisterAuthRoute(app *fiber.App) {
 
 	auth.Post("/register", authController.Register)
 	auth.Post("/login", authController.Login)
-	auth.Get("/inspect", middlewares.JwtMiddleware, authController.Inspect)
+	auth.Get("/inspect", middleware.JwtMiddleware, authController.Inspect)
 	auth.Post("/refresh", authController.RefreshToken)
 }
