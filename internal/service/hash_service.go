@@ -1,4 +1,4 @@
-package common
+package service
 
 import (
 	"log"
@@ -7,14 +7,16 @@ import (
 	"github.com/matthewhartstonge/argon2"
 )
 
-var argon argon2.Config
-
-func init() {
-	argon = argon2.DefaultConfig()
+type HashService struct {
+	argon *argon2.Config `di.inject:"argon"`
 }
 
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := argon.HashEncoded([]byte(password))
+func NewHashService(argon *argon2.Config) *HashService {
+	return &HashService{argon}
+}
+
+func (h *HashService) HashPassword(password string) (string, error) {
+	hashedPassword, err := h.argon.HashEncoded([]byte(password))
 	if err != nil {
 		log.Println("Error:", err)
 		return "", fiber.NewError(fiber.StatusInternalServerError, "Failed to hash password")
@@ -23,7 +25,7 @@ func HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func VerifyPassword(password string, hashedPassword string) error {
+func (h *HashService) VerifyPassword(password string, hashedPassword string) error {
 	ok, err := argon2.VerifyEncoded([]byte(password), []byte(hashedPassword))
 	if err != nil {
 		log.Println("Error:", err)

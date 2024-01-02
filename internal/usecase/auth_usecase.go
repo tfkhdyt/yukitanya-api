@@ -7,14 +7,16 @@ import (
 	"github.com/tfkhdyt/yukitanya-api/internal/model"
 	"github.com/tfkhdyt/yukitanya-api/internal/repository"
 	"github.com/tfkhdyt/yukitanya-api/internal/repository/postgres"
+	"github.com/tfkhdyt/yukitanya-api/internal/service"
 )
 
 type AuthUsecase struct {
-	userRepo repository.UserRepo `di.inject:"userRepo"`
+	userRepo    repository.UserRepo  `di.inject:"userRepo"`
+	hashService *service.HashService `di.inject:"hashService"`
 }
 
-func NewAuthService(userRepo *postgres.UserRepoPg) *AuthUsecase {
-	return &AuthUsecase{userRepo}
+func NewAuthUsecase(userRepo *postgres.UserRepoPg, hashService *service.HashService) *AuthUsecase {
+	return &AuthUsecase{userRepo, hashService}
 }
 
 func (a *AuthUsecase) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
@@ -33,7 +35,7 @@ func (a *AuthUsecase) Register(payload *dto.RegisterRequest) (*dto.RegisterRespo
 	}
 
 	var err error
-	user.Password, err = common.HashPassword(payload.Password)
+	user.Password, err = a.hashService.HashPassword(payload.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +57,7 @@ func (a *AuthUsecase) Login(payload *dto.LoginRequest) (*dto.LoginResponse, erro
 		return nil, err
 	}
 
-	if err := common.VerifyPassword(payload.Password, user.Password); err != nil {
+	if err := a.hashService.VerifyPassword(payload.Password, user.Password); err != nil {
 		return nil, err
 	}
 

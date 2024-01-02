@@ -4,25 +4,16 @@ import (
 	"errors"
 	"log"
 	"os"
-	"reflect"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/goioc/di"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/tfkhdyt/yukitanya-api/internal/common"
-	"github.com/tfkhdyt/yukitanya-api/internal/controller/http"
-	"github.com/tfkhdyt/yukitanya-api/internal/database"
-	"github.com/tfkhdyt/yukitanya-api/internal/repository/postgres"
+	"github.com/tfkhdyt/yukitanya-api/internal/container"
 	"github.com/tfkhdyt/yukitanya-api/internal/route"
-	"github.com/tfkhdyt/yukitanya-api/internal/usecase"
 )
 
 func init() {
-	_, _ = di.RegisterBean("userRepo", reflect.TypeOf((*postgres.UserRepoPg)(nil)))
-	_, _ = di.RegisterBean("authUsecase", reflect.TypeOf((*usecase.AuthUsecase)(nil)))
-	_, _ = di.RegisterBean("authController", reflect.TypeOf((*http.AuthController)(nil)))
-	_, _ = di.RegisterBeanInstance("db", database.StartDB())
-	_ = di.InitializeContainer()
+	container.InitializeContainer()
 }
 
 func main() {
