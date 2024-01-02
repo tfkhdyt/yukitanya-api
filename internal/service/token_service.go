@@ -1,4 +1,4 @@
-package common
+package service
 
 import (
 	"fmt"
@@ -19,7 +19,13 @@ const (
 	Refresh JwtType = 1
 )
 
-func GenerateJWTToken(userID uint, jwtType JwtType) (string, error) {
+type TokenService struct{}
+
+func NewTokenService() *TokenService {
+	return &TokenService{}
+}
+
+func (ts *TokenService) GenerateJWTToken(userID uint, jwtType JwtType) (string, error) {
 	var exp int64
 	switch jwtType {
 	case Access:
@@ -46,7 +52,7 @@ func GenerateJWTToken(userID uint, jwtType JwtType) (string, error) {
 	return t, nil
 }
 
-func ExtractUserIDFromClaims(c *fiber.Ctx) (uint, error) {
+func (ts *TokenService) ExtractUserIDFromClaims(c *fiber.Ctx) (uint, error) {
 	user, ok := c.Locals("user").(*jwt.Token)
 	if !ok {
 		return 0, fiber.NewError(fiber.StatusBadRequest, "Failed to validate token")
@@ -65,7 +71,7 @@ func ExtractUserIDFromClaims(c *fiber.Ctx) (uint, error) {
 	return uint(userID), nil
 }
 
-func ExtractUserIDFromJWTPayload(tokenString string) (uint, error) {
+func (ts *TokenService) ExtractUserIDFromJWTPayload(tokenString string) (uint, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])

@@ -27,6 +27,7 @@ func InitializeContainer() {
 	if _, err := di.RegisterBean("hashService", reflect.TypeOf((*service.HashService)(nil))); err != nil {
 		log.Fatalln("Error (hashService):", err)
 	}
+	_, _ = di.RegisterBean("tokenService", reflect.TypeOf((*service.TokenService)(nil)))
 
 	_, _ = di.RegisterBean("userRepo", reflect.TypeOf((*postgres.UserRepoPg)(nil)))
 	_, _ = di.RegisterBean("authUsecase", reflect.TypeOf((*usecase.AuthUsecase)(nil)))

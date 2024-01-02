@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/tfkhdyt/yukitanya-api/internal/common"
 	"github.com/tfkhdyt/yukitanya-api/internal/dto"
 	"github.com/tfkhdyt/yukitanya-api/internal/model"
 	"github.com/tfkhdyt/yukitanya-api/internal/repository"
@@ -11,12 +10,13 @@ import (
 )
 
 type AuthUsecase struct {
-	userRepo    repository.UserRepo  `di.inject:"userRepo"`
-	hashService *service.HashService `di.inject:"hashService"`
+	userRepo     repository.UserRepo   `di.inject:"userRepo"`
+	hashService  *service.HashService  `di.inject:"hashService"`
+	tokenService *service.TokenService `di.inject:"tokenService"`
 }
 
-func NewAuthUsecase(userRepo *postgres.UserRepoPg, hashService *service.HashService) *AuthUsecase {
-	return &AuthUsecase{userRepo, hashService}
+func NewAuthUsecase(userRepo *postgres.UserRepoPg, hashService *service.HashService, tokenService *service.TokenService) *AuthUsecase {
+	return &AuthUsecase{userRepo, hashService, tokenService}
 }
 
 func (a *AuthUsecase) Register(payload *dto.RegisterRequest) (*dto.RegisterResponse, error) {
@@ -61,12 +61,12 @@ func (a *AuthUsecase) Login(payload *dto.LoginRequest) (*dto.LoginResponse, erro
 		return nil, err
 	}
 
-	accessToken, err := common.GenerateJWTToken(user.ID, common.Access)
+	accessToken, err := a.tokenService.GenerateJWTToken(user.ID, service.Access)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := common.GenerateJWTToken(user.ID, common.Refresh)
+	refreshToken, err := a.tokenService.GenerateJWTToken(user.ID, service.Refresh)
 	if err != nil {
 		return nil, err
 	}
@@ -92,12 +92,12 @@ func (a *AuthUsecase) Inspect(userID uint) (*dto.InspectResponse, error) {
 }
 
 func (a *AuthUsecase) RefreshToken(userID uint) (*dto.RefreshTokenResponse, error) {
-	accessToken, err := common.GenerateJWTToken(userID, common.Access)
+	accessToken, err := a.tokenService.GenerateJWTToken(userID, service.Access)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := common.GenerateJWTToken(userID, common.Refresh)
+	refreshToken, err := a.tokenService.GenerateJWTToken(userID, service.Refresh)
 	if err != nil {
 		return nil, err
 	}
