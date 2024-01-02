@@ -1,8 +1,6 @@
 package http
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/tfkhdyt/yukitanya-api/internal/dto"
 	"github.com/tfkhdyt/yukitanya-api/internal/service"
@@ -18,7 +16,6 @@ type AuthController struct {
 func (a *AuthController) Register(c *fiber.Ctx) error {
 	payload := new(dto.RegisterRequest)
 	if err := a.validatorService.ValidateBody(c, payload); err != nil {
-		fmt.Println(err.Error())
 		return err
 	}
 

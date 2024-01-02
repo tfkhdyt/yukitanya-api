@@ -29,11 +29,17 @@ func NewValidatorService() *ValidatorService {
 	return &ValidatorService{validate, trans}
 }
 
-func (v *ValidatorService) validateStruct(payload any) validator.ValidationErrorsTranslations {
-	if err := v.validate.Struct(payload); err != nil {
-		errs := err.(validator.ValidationErrors)
+func (v *ValidatorService) validateStruct(payload any) []string {
+	errs := []string{}
 
-		return errs.Translate(v.trans)
+	if err := v.validate.Struct(payload); err != nil {
+		validationErrors := err.(validator.ValidationErrors)
+
+		for _, e := range validationErrors {
+			errs = append(errs, e.Translate(v.trans))
+		}
+
+		return errs
 	}
 
 	return nil

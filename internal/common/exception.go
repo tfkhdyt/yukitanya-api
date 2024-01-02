@@ -1,15 +1,15 @@
 package common
 
-import "github.com/go-playground/validator/v10"
+import "strings"
 
 type ValidationError struct {
-	Err validator.ValidationErrorsTranslations
+	Errs []string
 }
 
-func NewValidationError(err validator.ValidationErrorsTranslations) *ValidationError {
-	return &ValidationError{err}
+func NewValidationError(errs []string) *ValidationError {
+	return &ValidationError{errs}
 }
 
 func (v *ValidationError) Error() string {
-	return "error"
+	return strings.Join(v.Errs, ",")
 }

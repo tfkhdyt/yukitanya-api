@@ -29,7 +29,7 @@ func main() {
 			var ve *common.ValidationError
 			if errors.As(err, &ve) {
 				return ctx.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-					"error": ve.Err,
+					"errors": ve.Errs,
 				})
 			}
 
